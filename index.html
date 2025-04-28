@@ -6,19 +6,19 @@
     }
   }
 </script>
-<div class="container">
-  <h1>Explain Things with Lots of Tiny Cats</h1>
-  <p>Examples:</p>
-  <ul id="examples">
-    <li>Explain how neural networks work.</li>
-    <li>Explain how The Matrix works.</li>
-    <li>Explain how spaghettification works.</li>
+<div class="container" style="font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+  <h1 style="text-align: center; color: #333;">Explique Coisas com Muitos Gatinhos</h1>
+  <p style="text-align: center; color: #555;">Exemplos:</p>
+  <ul id="examples" style="list-style-type: none; padding: 0;">
+    <li style="background: #e3f2fd; margin: 5px 0; padding: 10px; border-radius: 5px;">Explique como redes neurais funcionam.</li>
+    <li style="background: #e3f2fd; margin: 5px 0; padding: 10px; border-radius: 5px;">Explique como o filme Matrix funciona.</li>
+    <li style="background: #e3f2fd; margin: 5px 0; padding: 10px; border-radius: 5px;">Explique como funciona a espaguetificação.</li>
   </ul>
-  <p>or enter your own prompt:</p>
-  <textarea id="input" placeholder="Enter some prompt and press Enter."></textarea>
-  <div id="output"></div>
-  <div id="error" hidden></div>
-  <div id="slideshow" hidden></div>
+  <p style="text-align: center; color: #555;">ou insira seu próprio prompt:</p>
+  <textarea id="input" placeholder="Digite um prompt e pressione Enter." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 20px;"></textarea>
+  <div id="output" style="background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 20px;"></div>
+  <div id="error" hidden style="color: red; text-align: center; margin-bottom: 20px;"></div>
+  <div id="slideshow" hidden style="text-align: center; margin-top: 20px;"></div>
 </div>
 <link rel="stylesheet" href="index.css">
 <script src="index.tsx" type="module"></script>
