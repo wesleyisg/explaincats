@@ -5,6 +5,8 @@
 
 import {GoogleGenAI} from '@google/genai';
 import {marked} from 'marked';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 
@@ -128,3 +130,30 @@ examples.forEach((li) =>
     await generate(li.textContent);
   }),
 );
+
+const saveButton = document.createElement('button');
+saveButton.textContent = 'Salvar História e Imagens';
+saveButton.id = 'save-button';
+document.body.appendChild(saveButton);
+
+saveButton.addEventListener('click', async () => {
+  const zip = new JSZip();
+  const slides = slideshow.querySelectorAll('.slide');
+
+  slides.forEach((slide, index) => {
+    const img = slide.querySelector('img');
+    const caption = slide.querySelector('div').textContent;
+
+    if (img) {
+      const imgData = img.src.split(',')[1]; // Remove o prefixo "data:image/png;base64,"
+      zip.file(`image${index + 1}.png`, imgData, { base64: true });
+    }
+
+    if (caption) {
+      zip.file(`story${index + 1}.txt`, caption);
+    }
+  });
+
+  const content = await zip.generateAsync({ type: 'blob' });
+  saveAs(content, 'story_and_images.zip');
+});
