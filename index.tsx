@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Adiciona declaração para o módulo 'file-saver'
-declare module 'file-saver';
-
 import {GoogleGenAI} from '@google/genai';
 import {marked} from 'marked';
-import { downloadStoryAndImages } from './download';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 
@@ -46,8 +44,7 @@ function parseError(error: string) {
   const regex = /{"error":(.*)}/gm;
   const m = regex.exec(error);
   try {
-    const e = m ? m[1] : null;
-    if (!e) throw new Error('Erro ao processar a mensagem de erro.');
+    const e = m[1];
     const err = JSON.parse(e);
     return err.message;
   } catch (e) {
@@ -58,7 +55,7 @@ function parseError(error: string) {
 async function generate(message: string) {
   userInput.disabled = true;
 
-  (chat as any).history.length = 0;
+  chat.history.length = 0;
   modelOutput.innerHTML = '';
   slideshow.innerHTML = '';
   error.innerHTML = '';
@@ -79,13 +76,7 @@ async function generate(message: string) {
     let img = null;
 
     for await (const chunk of result) {
-      // Corrige possível null em 'chunk.candidates'
-      if (!chunk.candidates) continue;
-
       for (const candidate of chunk.candidates) {
-        // Corrige possível null em 'candidate.content'
-        if (!candidate.content) continue;
-
         for (const part of candidate.content.parts ?? []) {
           if (part.text) {
             text += part.text;
@@ -117,7 +108,7 @@ async function generate(message: string) {
       text = '';
     }
   } catch (e) {
-    const msg = parseError(e as string);
+    const msg = parseError(e);
     error.innerHTML = `Something went wrong: ${msg}`;
     error.removeAttribute('hidden');
   }
@@ -135,8 +126,8 @@ userInput.addEventListener('keydown', async (e: KeyboardEvent) => {
 
 const examples = document.querySelectorAll('#examples li');
 examples.forEach((li) =>
-  li.addEventListener('click', async () => {
-    await generate(li.textContent || '');
+  li.addEventListener('click', async (e) => {
+    await generate(li.textContent);
   }),
 );
 
@@ -146,5 +137,23 @@ saveButton.id = 'save-button';
 document.body.appendChild(saveButton);
 
 saveButton.addEventListener('click', async () => {
-  await downloadStoryAndImages(slideshow);
+  const zip = new JSZip();
+  const slides = slideshow.querySelectorAll('.slide');
+
+  slides.forEach((slide, index) => {
+    const img = slide.querySelector('img');
+    const caption = slide.querySelector('div').textContent;
+
+    if (img) {
+      const imgData = img.src.split(',')[1]; // Remove o prefixo "data:image/png;base64,"
+      zip.file(`image${index + 1}.png`, imgData, { base64: true });
+    }
+
+    if (caption) {
+      zip.file(`story${index + 1}.txt`, caption);
+    }
+  });
+
+  const content = await zip.generateAsync({ type: 'blob' });
+  saveAs(content, 'story_and_images.zip');
 });
